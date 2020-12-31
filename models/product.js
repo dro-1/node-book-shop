@@ -27,7 +27,7 @@ module.exports = class Product {
     getProductsFromFile((products) => {
       this.id = products.length;
       products.push(this);
-      fs.writeFile(p, JSON.stringify(products));
+      fs.writeFile(p, JSON.stringify(products), console.log);
     });
     return this;
   }

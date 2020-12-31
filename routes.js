@@ -20,7 +20,7 @@ const reqHandler = (req, res) => {
     req.on("data", (chunk) => body.push(chunk));
     req.on("end", () => {
       const parsedBody = Buffer.concat(body).toString();
-      fs.writeFile("message.txt", parsedBody.split("=")[1]);
+      fs.writeFile("message.txt", parsedBody.split("=")[1], console.log);
     });
 
     res.writeHead(302, {
