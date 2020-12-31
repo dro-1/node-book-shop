@@ -35,7 +35,9 @@ module.exports = class Cart {
         cart.totalPrice = cart.totalPrice.toFixed(2);
       }
       console.log(cart);
-      fs.writeFile(p, JSON.stringify(cart), console.log);
+      fs.writeFile(p, JSON.stringify(cart), (err) =>
+        err ? console.log(err) : null
+      );
     });
   }
 };

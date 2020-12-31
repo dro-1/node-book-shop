@@ -7,7 +7,7 @@ const p = path.join(rootDir, "data", "products.json");
 const getProductsFromFile = (cb) => {
   fs.readFile(p, (err, fileContent) => {
     if (err) {
-      console.log(err);
+      console.log(err, "Reading Products File Error");
       cb([]);
     } else {
       cb(JSON.parse(fileContent));
