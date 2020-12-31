@@ -25,13 +25,21 @@ module.exports = class Product {
 
   save() {
     getProductsFromFile((products) => {
+      this.id = products.length;
       products.push(this);
-      fs.writeFile(p, JSON.stringify(products), console.log);
+      fs.writeFile(p, JSON.stringify(products));
     });
     return this;
   }
 
   static fetchAll(cb) {
     getProductsFromFile(cb);
+  }
+
+  static findById(id, cb) {
+    getProductsFromFile((products) => {
+      const product = products.find((product) => product.id === Number(id));
+      cb(product);
+    });
   }
 };
