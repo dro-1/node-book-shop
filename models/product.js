@@ -59,4 +59,14 @@ module.exports = class Product {
       cb(product);
     });
   }
+
+  static delete(id, cb) {
+    getProductsFromFile((products) => {
+      const newProducts = products.filter(
+        (product) => product.id !== Number(id)
+      );
+      fs.writeFile(p, JSON.stringify(newProducts), console.log);
+      cb();
+    });
+  }
 };

@@ -1,6 +1,6 @@
 const Product = require("./../models/product");
 
-exports.getAddProducts = (req, res) => {
+exports.getAddProduct = (req, res) => {
   res.render("admin/edit-product", {
     pageTitle: "Add Product",
     path: "/admin/add-product",
@@ -8,7 +8,7 @@ exports.getAddProducts = (req, res) => {
   });
 };
 
-exports.getEditProducts = (req, res) => {
+exports.getEditProduct = (req, res) => {
   const { productId } = req.params;
   Product.findById(productId, (product) => {
     if (product) {
@@ -23,18 +23,23 @@ exports.getEditProducts = (req, res) => {
   });
 };
 
-exports.postAddProducts = (req, res) => {
+exports.postAddProduct = (req, res) => {
   const { title, imageUrl, price, description } = req.body;
   const product = new Product(null, title, imageUrl, price, description);
   product.save();
   res.redirect("/admin/products");
 };
 
-exports.postEditProducts = (req, res) => {
+exports.postEditProduct = (req, res) => {
   const { title, imageUrl, price, description, id } = req.body;
   const product = new Product(id, title, imageUrl, price, description);
   product.save();
   res.redirect("/admin/products");
+};
+
+exports.deleteProduct = (req, res) => {
+  const { id } = req.body;
+  Product.delete(id, () => res.redirect("/admin/products"));
 };
 
 exports.getAdminProducts = (req, res) => {
