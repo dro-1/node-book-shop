@@ -16,20 +16,77 @@ exports.getProducts = (req, res, next) => {
 
 exports.postCart = (req, res, next) => {
   const { productId } = req.body;
-  Product.findById(productId, (product) => {
-    Cart.addProduct(product.id, Number(product.price));
-    res.redirect("/cart");
-  });
+  let fetchedCart;
+  let newQuantity = 1;
+  req.user
+    .getCart()
+    .then((cart) => {
+      fetchedCart = cart;
+      return cart.getProducts({ where: { id: productId } });
+    })
+    .then((cartProducts) => {
+      let cartProduct;
+      if (cartProducts.length > 0) {
+        cartProduct = cartProducts[0];
+        newQuantity = cartProduct.cartItem.quantity + 1;
+        return cartProduct;
+      } else {
+        return Product.findByPk(productId);
+      }
+    })
+    .then((product) => {
+      fetchedCart.addProduct(product, { through: { quantity: newQuantity } });
+    })
+    .then(() => {
+      res.redirect("/cart");
+    })
+    .catch(console.log);
 };
 
 exports.deleteCartItem = (req, res, next) => {
   const { productId } = req.body;
-  Cart.deleteProduct(productId, () => res.redirect("/cart"));
+  let fetchedCart;
+  req.user
+    .getCart()
+    .then((cart) => {
+      fetchedCart = cart;
+      return cart.removeProduct(productId);
+    })
+    .then((resp) => {
+      res.redirect("/cart");
+    })
+    .catch(console.log);
 };
 
 exports.decreaseCartItem = (req, res, next) => {
   const { productId } = req.body;
-  Cart.decreaseProduct(productId, () => res.redirect("/cart"));
+  let fetchedCart;
+  req.user
+    .getCart()
+    .then((cart) => {
+      fetchedCart = cart;
+      return cart.getProducts({ where: { id: productId } });
+    })
+    .then((cartProducts) => {
+      if (cartProducts.length > 0) {
+        return cartProducts[0];
+      } else {
+        throw Error;
+      }
+    })
+    .then((product) => {
+      if (product.cartItem.quantity == 1) {
+        return fetchedCart.removeProduct(productId);
+      }
+      fetchedCart.addProduct(product, {
+        through: { quantity: product.cartItem.quantity - 1 },
+      });
+    })
+    .then((resp) => {
+      console.log(resp);
+      res.redirect("/cart");
+    })
+    .catch(console.log);
 };
 
 exports.getProduct = (req, res, next) => {
@@ -68,28 +125,23 @@ exports.getIndexPage = (req, res) => {
 };
 
 exports.getCart = (req, res) => {
-  Cart.getProducts((cart) => {
-    Product.fetchAll((products) => {
-      const cartProducts = [];
-      products.forEach((product) => {
-        let productInCart = cart.products.find(
-          (cartProduct) => cartProduct.id == product.id
-        );
-        if (productInCart) {
-          cartProducts.push({ ...product, qty: productInCart.qty });
-        }
-      });
-      console.log(cartProducts);
+  req.user
+    .getCart()
+    .then((cart) => cart.getProducts())
+    .then((resp) => {
+      const products = resp.map((re) => ({
+        ...re.dataValues,
+        qty: re.dataValues.cartItem.quantity,
+      }));
+      console.log(products);
       res.render("shop/cart", {
         pageTitle: "Cart",
         path: "/cart",
         cart: {
-          totalPrice: cart.totalPrice,
-          products: cartProducts,
+          products,
         },
       });
     });
-  });
 };
 
 exports.getOrders = (req, res) => {
