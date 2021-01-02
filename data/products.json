@@ -1,1 +1,25 @@
-[{"title":"Oliver Twist","imageUrl":"https://upload.wikimedia.org/wikipedia/en/b/b7/Oliver-twist-dvd-cover.JPG","price":19.99,"description":"Oliver Twist; or, the Parish Boy's Progress is Charles Dickens's second novel, and was published as a serial from 1837 to 1839 and released as a three-volume book in 1838, before the serialization ended. The story centres on orphan Oliver Twist, born in a workhouse and sold into apprenticeship with an undertaker. After escaping, Oliver travels to London, where he meets the \"Artful Dodger\", a member of a gang of juvenile pickpockets led by the elderly criminal Fagin.","id":0},{"id":1,"title":"Things Fall Apart","imageUrl":"https://images-na.ssl-images-amazon.com/images/I/81UArMb--hL.jpg","price":20.55,"description":"Things Fall Apart is the debut novel by Nigerian author Chinua Achebe, first published in 1958. Its story chronicles pre-colonial life in the southeastern part of Nigeria and the arrival of Europeans during the late 19th century. It is seen as the archetypal modern African novel in English, and one of the first to receive global critical acclaim. It is a staple book in schools throughout Africa and is widely read and studied in English-speaking countries around the world. The novel was first published in the UK in 1962 by William Heinemann Ltd., and became the first work published in Heinemann's African Writers Series."},{"id":5,"title":"Book 1","imageUrl":"https://images-na.ssl-images-amazon.com/images/I/81UArMb--hL.jpg","price":"19.99","description":"fghjkl"},{"id":6,"title":"Book 1","imageUrl":"https://images-na.ssl-images-amazon.com/images/I/81UArMb--hL.jpg","price":"19.99","description":"fghjkl"}]
+[{
+    "title": "Oliver Twist",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/b/b7/Oliver-twist-dvd-cover.JPG",
+    "price": 19.99,
+    "description": "Oliver Twist; or, the Parish Boy's Progress is Charles Dickens's second novel, and was published as a serial from 1837 to 1839 and released as a three-volume book in 1838, before the serialization ended. The story centres on orphan Oliver Twist, born in a workhouse and sold into apprenticeship with an undertaker. After escaping, Oliver travels to London, where he meets the \"Artful Dodger\", a member of a gang of juvenile pickpockets led by the elderly criminal Fagin.",
+    "id": 0
+}, {
+    "id": 1,
+    "title": "Things Fall Apart",
+    "imageUrl": "https://images-na.ssl-images-amazon.com/images/I/81UArMb--hL.jpg",
+    "price": 20.55,
+    "description": "Things Fall Apart is the debut novel by Nigerian author Chinua Achebe, first published in 1958. Its story chronicles pre-colonial life in the southeastern part of Nigeria and the arrival of Europeans during the late 19th century. It is seen as the archetypal modern African novel in English, and one of the first to receive global critical acclaim. It is a staple book in schools throughout Africa and is widely read and studied in English-speaking countries around the world. The novel was first published in the UK in 1962 by William Heinemann Ltd., and became the first work published in Heinemann's African Writers Series."
+}, {
+    "id": 5,
+    "title": "Book 1",
+    "imageUrl": "https://images-na.ssl-images-amazon.com/images/I/81UArMb--hL.jpg",
+    "price": "19.99",
+    "description": "fghjkl"
+}, {
+    "id": 6,
+    "title": "Book 1",
+    "imageUrl": "https://images-na.ssl-images-amazon.com/images/I/81UArMb--hL.jpg",
+    "price": "19.99",
+    "description": "fghjkl"
+}]
