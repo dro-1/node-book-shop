@@ -10,8 +10,13 @@ exports.getAddProduct = (req, res) => {
 
 exports.getEditProduct = (req, res) => {
   const { productId } = req.params;
-  Product.findByPk(productId)
-    .then(({ dataValues }) => {
+  req.user
+    .getProducts({
+      where: {
+        id: productId,
+      },
+    })
+    .then(([{ dataValues }]) => {
       if (dataValues) {
         console.log(dataValues);
         res.render("admin/edit-product", {
@@ -85,7 +90,8 @@ exports.deleteProduct = (req, res) => {
 };
 
 exports.getAdminProducts = (req, res) => {
-  Product.findAll()
+  req.user
+    .getProducts()
     .then((resp) => {
       const products = resp.map((re) => ({ ...re.dataValues }));
       res.render("admin/products", {

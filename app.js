@@ -5,6 +5,8 @@ const app = express();
 const sequelize = require("./util/database");
 const User = require("./models/user");
 const Product = require("./models/product");
+const Cart = require("./models/cart");
+const CartItem = require("./models/cartItem");
 
 app.set("view engine", "ejs");
 app.set("views", "views");
@@ -34,7 +36,14 @@ app.use(Controller404.get404Page);
 Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
 User.hasMany(Product);
 
+Cart.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
+User.hasOne(Cart);
+
+Cart.belongsToMany(Product, { through: CartItem });
+Product.belongsToMany(Cart, { through: CartItem });
+
 sequelize
+  //.sync({ force: true })
   .sync()
   .then((resp) => {
     return User.findByPk(1);
