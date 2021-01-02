@@ -32,6 +32,7 @@ app.use(shopRouter);
 app.use(Controller404.get404Page);
 
 Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
+User.hasMany(Product);
 
 sequelize
   .sync()

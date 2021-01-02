@@ -32,12 +32,13 @@ exports.getEditProduct = (req, res) => {
 
 exports.postAddProduct = (req, res) => {
   const { title, imageUrl, price, description } = req.body;
-  Product.create({
-    title,
-    imageUrl,
-    price,
-    description,
-  })
+  req.user
+    .createProduct({
+      title,
+      imageUrl,
+      price,
+      description,
+    })
     .then((result) => {
       res.redirect("/admin/products");
     })
