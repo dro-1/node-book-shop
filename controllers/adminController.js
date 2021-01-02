@@ -25,12 +25,15 @@ exports.getEditProduct = (req, res) => {
 
 exports.postAddProduct = (req, res) => {
   const { title, imageUrl, price, description } = req.body;
-  const product = new Product(title, imageUrl, price, description);
-  product
-    .save()
+  Product.create({
+    title,
+    imageUrl,
+    price,
+    description,
+  })
     .then((result) => {
       console.log(result);
-      res.redirect("/admin/products");
+      //res.redirect("/admin/products");
     })
     .catch(console.log);
 };

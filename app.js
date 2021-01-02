@@ -23,7 +23,7 @@ app.use(Controller404.get404Page);
 sequelize
   .sync()
   .then((resp) => {
-    console.log(resp);
+    //console.log(resp);
     app.listen(3000, "dro");
   })
   .catch(console.log);
