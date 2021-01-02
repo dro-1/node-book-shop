@@ -163,24 +163,32 @@ exports.createOrder = (req, res) => {
     })
     .then((order) => {
       console.log(order);
-      products.forEach((product) => {
-        order.addProduct(product, {
-          through: { quantity: product.cartItem.quantity },
-        });
-      });
+      order.addProducts(
+        products.map((product) => {
+          product.orderItem = { quantity: product.cartItem.quantity };
+          return product;
+        })
+      );
     })
     .then(() => {
+      //fetchedCart.setProducts(null)
       return fetchedCart.removeProducts(products);
     })
     .then((resp) => {
-      res.redirect("/cart");
+      res.redirect("/orders");
     })
     .catch(console.log);
 };
 
 exports.getOrders = (req, res) => {
-  res.render("shop/orders", {
-    pageTitle: "Orders",
-    path: "/orders",
-  });
+  req.user
+    .getOrders({ include: ["products"] })
+    .then((orders) => {
+      res.render("shop/orders", {
+        pageTitle: "Orders",
+        path: "/orders",
+        orders,
+      });
+    })
+    .catch(console.log);
 };
