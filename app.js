@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
 const app = express();
+const sequelize = require("./util/database");
 
 app.set("view engine", "ejs");
 app.set("views", "views");
@@ -19,4 +20,10 @@ app.use(shopRouter);
 
 app.use(Controller404.get404Page);
 
-app.listen(3000, "dro");
+sequelize
+  .sync()
+  .then((resp) => {
+    console.log(resp);
+    app.listen(3000, "dro");
+  })
+  .catch(console.log);
