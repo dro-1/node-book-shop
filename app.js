@@ -7,6 +7,8 @@ const User = require("./models/user");
 const Product = require("./models/product");
 const Cart = require("./models/cart");
 const CartItem = require("./models/cartItem");
+const Order = require("./models/order");
+const OrderItem = require("./models/orderItem");
 
 app.set("view engine", "ejs");
 app.set("views", "views");
@@ -36,11 +38,17 @@ app.use(Controller404.get404Page);
 Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
 User.hasMany(Product);
 
-Cart.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
+Cart.belongsTo(User);
 User.hasOne(Cart);
 
 Cart.belongsToMany(Product, { through: CartItem });
 Product.belongsToMany(Cart, { through: CartItem });
+
+User.hasMany(Order);
+Order.belongsTo(User);
+
+Order.belongsToMany(Product, { through: OrderItem });
+Product.belongsToMany(Order, { through: OrderItem });
 
 sequelize
   //.sync({ force: true })
@@ -54,7 +62,6 @@ sequelize
     }
     return user;
   })
-  .then((user) => user.createCart())
   .then((user) => {
     app.listen(3000, "dro");
   })

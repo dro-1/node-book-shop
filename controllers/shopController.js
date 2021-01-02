@@ -1,6 +1,19 @@
 const Product = require("./../models/product");
 const Cart = require("./../models/cart");
 
+exports.getIndexPage = (req, res) => {
+  Product.findAll()
+    .then((resp) => {
+      const products = resp.map((re) => ({ ...re.dataValues }));
+      res.render("shop/index", {
+        pageTitle: "Shop Index Page",
+        path: "/",
+        products,
+      });
+    })
+    .catch(console.log);
+};
+
 exports.getProducts = (req, res, next) => {
   Product.findAll()
     .then((resp) => {
@@ -12,6 +25,47 @@ exports.getProducts = (req, res, next) => {
       });
     })
     .catch(console.log);
+};
+
+exports.getProduct = (req, res, next) => {
+  const { productId } = req.params;
+  Product.findByPk(productId)
+    .then(({ dataValues }) => {
+      if (dataValues) {
+        console.log(dataValues);
+        res.render("shop/product-detail", {
+          pageTitle: dataValues.title,
+          path: `/products`,
+          product: dataValues,
+        });
+      } else {
+        res
+          .status(404)
+          .render("404", { pageTitle: "Page Not Found", path: "" });
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+
+exports.getCart = (req, res) => {
+  req.user
+    .getCart()
+    .then((cart) => cart.getProducts())
+    .then((resp) => {
+      const products = resp.map((re) => ({
+        ...re.dataValues,
+        qty: re.dataValues.cartItem.quantity,
+      }));
+      res.render("shop/cart", {
+        pageTitle: "Cart",
+        path: "/cart",
+        cart: {
+          products,
+        },
+      });
+    });
 };
 
 exports.postCart = (req, res, next) => {
@@ -89,59 +143,39 @@ exports.decreaseCartItem = (req, res, next) => {
     .catch(console.log);
 };
 
-exports.getProduct = (req, res, next) => {
-  const { productId } = req.params;
-  Product.findByPk(productId)
-    .then(({ dataValues }) => {
-      if (dataValues) {
-        console.log(dataValues);
-        res.render("shop/product-detail", {
-          pageTitle: dataValues.title,
-          path: `/products`,
-          product: dataValues,
-        });
+exports.createOrder = (req, res) => {
+  const { user } = req;
+  let products;
+  let fetchedCart;
+  user
+    .getCart()
+    .then((cart) => {
+      fetchedCart = cart;
+      return cart.getProducts();
+    })
+    .then((cartProducts) => {
+      if (cartProducts.length > 0) {
+        products = cartProducts;
+        return user.createOrder();
       } else {
-        res
-          .status(404)
-          .render("404", { pageTitle: "Page Not Found", path: "" });
+        return res.redirect("/cart");
       }
     })
-    .catch((err) => {
-      console.log(err);
-    });
-};
-
-exports.getIndexPage = (req, res) => {
-  Product.findAll()
-    .then((resp) => {
-      const products = resp.map((re) => ({ ...re.dataValues }));
-      res.render("shop/index", {
-        pageTitle: "Shop Index Page",
-        path: "/",
-        products,
+    .then((order) => {
+      console.log(order);
+      products.forEach((product) => {
+        order.addProduct(product, {
+          through: { quantity: product.cartItem.quantity },
+        });
       });
     })
-    .catch(console.log);
-};
-
-exports.getCart = (req, res) => {
-  req.user
-    .getCart()
-    .then((cart) => cart.getProducts())
+    .then(() => {
+      return fetchedCart.removeProducts(products);
+    })
     .then((resp) => {
-      const products = resp.map((re) => ({
-        ...re.dataValues,
-        qty: re.dataValues.cartItem.quantity,
-      }));
-      console.log(products);
-      res.render("shop/cart", {
-        pageTitle: "Cart",
-        path: "/cart",
-        cart: {
-          products,
-        },
-      });
-    });
+      res.redirect("/cart");
+    })
+    .catch(console.log);
 };
 
 exports.getOrders = (req, res) => {
