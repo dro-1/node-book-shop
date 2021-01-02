@@ -3,6 +3,8 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const app = express();
 const sequelize = require("./util/database");
+const User = require("./models/user");
+const Product = require("./models/product");
 
 app.set("view engine", "ejs");
 app.set("views", "views");
@@ -14,16 +16,35 @@ const Controller404 = require("./controllers/404");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
+app.use((req, res, next) => {
+  User.findByPk(1)
+    .then((user) => {
+      req.user = user;
+      next();
+    })
+    .catch(console.log);
+});
+
 app.use("/admin", adminRoutes);
 
 app.use(shopRouter);
 
 app.use(Controller404.get404Page);
 
+Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
+
 sequelize
   .sync()
   .then((resp) => {
-    //console.log(resp);
+    return User.findByPk(1);
+  })
+  .then((user) => {
+    if (!user) {
+      return User.create({ name: "Dro", email: "dro@dro.com" });
+    }
+    return user;
+  })
+  .then((user) => {
     app.listen(3000, "dro");
   })
   .catch(console.log);
