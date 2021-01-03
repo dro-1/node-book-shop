@@ -13,6 +13,7 @@ const connector = (cb) => {
     .then((client) => {
       console.log("DB Connected");
       db = client.db("shop");
+      cb();
     })
     .catch(console.log);
 };

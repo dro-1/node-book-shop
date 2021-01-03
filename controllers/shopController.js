@@ -1,10 +1,9 @@
 const Product = require("./../models/product");
-const Cart = require("./../models/cart");
+//const Cart = require("./../models/cart");
 
 exports.getIndexPage = (req, res) => {
-  Product.findAll()
-    .then((resp) => {
-      const products = resp.map((re) => ({ ...re.dataValues }));
+  Product.fetchAll()
+    .then((products) => {
       res.render("shop/index", {
         pageTitle: "Shop Index Page",
         path: "/",
@@ -15,9 +14,8 @@ exports.getIndexPage = (req, res) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.findAll()
-    .then((resp) => {
-      const products = resp.map((re) => ({ ...re.dataValues }));
+  Product.fetchAll()
+    .then((products) => {
       res.render("shop/product-list", {
         pageTitle: "Product List Page",
         path: "/products",
@@ -29,14 +27,14 @@ exports.getProducts = (req, res, next) => {
 
 exports.getProduct = (req, res, next) => {
   const { productId } = req.params;
-  Product.findByPk(productId)
-    .then(({ dataValues }) => {
-      if (dataValues) {
-        console.log(dataValues);
+  Product.findById(productId)
+    .then((product) => {
+      console.log(product);
+      if (product) {
         res.render("shop/product-detail", {
-          pageTitle: dataValues.title,
+          pageTitle: product.title,
           path: `/products`,
-          product: dataValues,
+          product,
         });
       } else {
         res
