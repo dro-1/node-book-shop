@@ -3,10 +3,10 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const app = express();
 
-const { connector, getDb } = require("./util/database");
-
 app.set("view engine", "ejs");
 app.set("views", "views");
+
+const connector = require("./util/database");
 
 const adminRoutes = require("./routes/admin");
 const shopRouter = require("./routes/shop");
