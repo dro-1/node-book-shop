@@ -10,13 +10,13 @@ router.get("/cart", shopController.getCart);
 
 router.post("/cart", shopController.postCart);
 
-// router.get("/orders", shopController.getOrders);
+router.get("/orders", shopController.getOrders);
 
 router.get("/products", shopController.getProducts);
 
 router.post("/cart-delete-item", shopController.deleteCartItem);
 
-// router.post("/create-order", shopController.createOrder);
+ router.post("/create-order", shopController.createOrder);
 
 router.post("/cart-decrease-item", shopController.decreaseCartItem);
 

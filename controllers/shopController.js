@@ -1,6 +1,5 @@
 const Product = require("./../models/product");
 const User = require("../models/user");
-//const Cart = require("./../models/cart");
 
 exports.getIndexPage = (req, res) => {
   Product.fetchAll()
@@ -84,7 +83,7 @@ exports.deleteCartItem = (req, res) => {
       user
         .deleteFromCart(product, _id)
         .then((resp) => {
-          //console.log("Item Deleted From Cart");
+          console.log("Item Deleted From Cart");
           res.redirect("/cart");
         })
         .catch(console.log);
@@ -110,46 +109,21 @@ exports.decreaseCartItem = (req, res, next) => {
 };
 
 exports.createOrder = (req, res) => {
-  const { user } = req;
-  let products;
-  let fetchedCart;
+ const { _id, username, email, cart } = req.user;
+  const user = new User(username, email, cart);
   user
-    .getCart()
-    .then((cart) => {
-      fetchedCart = cart;
-      return cart.getProducts();
-    })
-    .then((cartProducts) => {
-      if (cartProducts.length > 0) {
-        products = cartProducts;
-        return user.createOrder();
-      } else {
-        return res.redirect("/cart");
-      }
-    })
-    .then((order) => {
-      console.log(order);
-      order.addProducts(
-        products.map((product) => {
-          product.orderItem = { quantity: product.cartItem.quantity };
-          return product;
-        })
-      );
-    })
-    .then(() => {
-      //fetchedCart.setProducts(null)
-      return fetchedCart.removeProducts(products);
-    })
+    .placeOrder(_id)
     .then((resp) => {
-      res.redirect("/orders");
+      console.log(resp)
+     res.redirect("/cart");
     })
-    .catch(console.log);
+   .catch(console.log);
 };
 
 exports.getOrders = (req, res) => {
-  req.user
-    .getOrders({ include: ["products"] })
+  User.fetchOrders(req.user._id)
     .then((orders) => {
+      console.log(orders)
       res.render("shop/orders", {
         pageTitle: "Orders",
         path: "/orders",

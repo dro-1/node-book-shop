@@ -74,8 +74,6 @@ class User {
       },
       {
         $set: {
-          username: this.username,
-          email: this.email,
           cart: updatedCart,
         },
       }
@@ -104,13 +102,38 @@ class User {
         },
         {
           $set: {
-            username: this.username,
-            email: this.email,
             cart: updatedCart,
           },
         }
       );
     }
+  }
+
+  placeOrder(id){
+    const db = getDb()
+   return db.collection('orders').insertOne({
+      ...this.cart,
+      userId: id
+    })
+    .then(resp=>{
+      let updatedCart = { items: [], totalPrice: 0}
+      return db.collection("users").updateOne(
+        {
+          _id: ObjectID(id),
+        },
+        {
+          $set: {
+            cart: updatedCart,
+          },
+        }
+      );
+    })
+    .catch(console.log)
+  }
+
+  static fetchOrders(id){
+    const db = getDb();
+    return db.collection('orders').find({userId: id}).toArray()
   }
 
   // getCart() {
