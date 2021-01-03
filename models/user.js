@@ -2,11 +2,10 @@ const { getDb } = require("./../util/database");
 const { ObjectID } = require("mongodb");
 
 class User {
-  constructor(username, email, cart, id) {
+  constructor(username, email, cart) {
     this.username = username;
     this.email = email;
     this.cart = cart;
-    this.id = id;
   }
 
   save() {
@@ -21,15 +20,20 @@ class User {
       .catch(console.log);
   }
 
-  addCart(product) {
+  addToCart(product, id) {
     const db = getDb();
     let existingCartItemIndex = this.cart.items.findIndex(
-      (item) => item._id === ObjectID(product._id)
+      (item) => item.productId.toString() === ObjectID(product._id).toString()
     );
-    let existingCartItem = updatedCart.items[existingCartItemIndex];
+    let existingCartItem = this.cart.items[existingCartItemIndex];
     let updatedCart = this.cart;
     if (existingCartItemIndex === -1) {
-      updatedCart.items.push(product);
+      updatedCart.items.push({
+        productId: ObjectID(product._id),
+        name: product.title,
+        price: product.price,
+        quantity: 1,
+      });
     } else {
       updatedCart.items[existingCartItemIndex] = {
         ...existingCartItem,
@@ -37,9 +41,10 @@ class User {
       };
     }
     updatedCart.totalPrice += product.price;
+    updatedCart.totalPrice = Number(updatedCart.totalPrice.toFixed(2));
     return db.collection("users").updateOne(
       {
-        _id: ObjectID(this.id),
+        _id: ObjectID(id),
       },
       {
         $set: {
@@ -50,6 +55,73 @@ class User {
       }
     );
   }
+
+  deleteFromCart(product, id) {
+    const db = getDb();
+    let updatedCart = this.cart;
+
+    const productID = product.productId ? product.productId : product._id;
+    updatedCart.items = this.cart.items.filter(
+      (item) => item.productId.toString() !== ObjectID(productID).toString()
+    );
+    console.log(updatedCart);
+    updatedCart.totalPrice =
+      updatedCart.totalPrice - product.quantity * product.price;
+    updatedCart.totalPrice = Number(updatedCart.totalPrice.toFixed(2));
+    return db.collection("users").updateOne(
+      {
+        _id: ObjectID(id),
+      },
+      {
+        $set: {
+          username: this.username,
+          email: this.email,
+          cart: updatedCart,
+        },
+      }
+    );
+  }
+
+  decreaseCartItem(product, id) {
+    const db = getDb();
+    let existingCartItemIndex = this.cart.items.findIndex(
+      (item) => item.productId.toString() === ObjectID(product._id).toString()
+    );
+    let existingCartItem = this.cart.items[existingCartItemIndex];
+    let updatedCart = this.cart;
+    if (existingCartItem.quantity === 1) {
+      return this.deleteFromCart(existingCartItem, id, true);
+    } else {
+      updatedCart.items[existingCartItemIndex] = {
+        ...existingCartItem,
+        quantity: existingCartItem.quantity - 1,
+      };
+      updatedCart.totalPrice -= product.price;
+      updatedCart.totalPrice = Number(updatedCart.totalPrice.toFixed(2));
+      return db.collection("users").updateOne(
+        {
+          _id: ObjectID(id),
+        },
+        {
+          $set: {
+            username: this.username,
+            email: this.email,
+            cart: updatedCart,
+          },
+        }
+      );
+    }
+  }
+
+  // getCart() {
+  //   const db = getDb();
+  //   let cartItemIds = []
+  //   return db.collection("products").find({
+  //     _id: {
+  //       $in : cartItemIds
+  //     }
+  //   });
+  // }
 
   static findById(id) {
     const db = getDb();

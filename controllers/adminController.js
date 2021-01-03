@@ -34,7 +34,7 @@ exports.postAddProduct = (req, res) => {
   const product = new Product(
     title,
     description,
-    price,
+    Number(price),
     imageUrl,
     null,
     req.user._id

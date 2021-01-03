@@ -1,4 +1,5 @@
 const Product = require("./../models/product");
+const User = require("../models/user");
 //const Cart = require("./../models/cart");
 
 exports.getIndexPage = (req, res) => {
@@ -48,95 +49,62 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getCart = (req, res) => {
-  req.user
-    .getCart()
-    .then((cart) => cart.getProducts())
-    .then((resp) => {
-      const products = resp.map((re) => ({
-        ...re.dataValues,
-        qty: re.dataValues.cartItem.quantity,
-      }));
-      res.render("shop/cart", {
-        pageTitle: "Cart",
-        path: "/cart",
-        cart: {
-          products,
-        },
-      });
-    });
+  res.render("shop/cart", {
+    pageTitle: "Cart",
+    path: "/cart",
+    cart: {
+      products: req.user.cart.items,
+    },
+  });
 };
 
 exports.postCart = (req, res, next) => {
   const { productId } = req.body;
-  let fetchedCart;
-  let newQuantity = 1;
-  req.user
-    .getCart()
-    .then((cart) => {
-      fetchedCart = cart;
-      return cart.getProducts({ where: { id: productId } });
-    })
-    .then((cartProducts) => {
-      let cartProduct;
-      if (cartProducts.length > 0) {
-        cartProduct = cartProducts[0];
-        newQuantity = cartProduct.cartItem.quantity + 1;
-        return cartProduct;
-      } else {
-        return Product.findByPk(productId);
-      }
-    })
+  const { _id, username, email, cart } = req.user;
+  const user = new User(username, email, cart);
+  Product.findById(productId)
     .then((product) => {
-      fetchedCart.addProduct(product, { through: { quantity: newQuantity } });
-    })
-    .then(() => {
-      res.redirect("/cart");
+      user
+        .addToCart(product, _id)
+        .then((resp) => {
+          console.log("Item Added To Cart");
+          res.redirect("/cart");
+        })
+        .catch(console.log);
     })
     .catch(console.log);
 };
 
-exports.deleteCartItem = (req, res, next) => {
+exports.deleteCartItem = (req, res) => {
   const { productId } = req.body;
-  let fetchedCart;
-  req.user
-    .getCart()
-    .then((cart) => {
-      fetchedCart = cart;
-      return cart.removeProduct(productId);
-    })
-    .then((resp) => {
-      res.redirect("/cart");
+  const { _id, username, email, cart } = req.user;
+  const user = new User(username, email, cart);
+  Product.findById(productId)
+    .then((product) => {
+      user
+        .deleteFromCart(product, _id)
+        .then((resp) => {
+          //console.log("Item Deleted From Cart");
+          res.redirect("/cart");
+        })
+        .catch(console.log);
     })
     .catch(console.log);
 };
 
 exports.decreaseCartItem = (req, res, next) => {
   const { productId } = req.body;
-  let fetchedCart;
-  req.user
-    .getCart()
-    .then((cart) => {
-      fetchedCart = cart;
-      return cart.getProducts({ where: { id: productId } });
-    })
-    .then((cartProducts) => {
-      if (cartProducts.length > 0) {
-        return cartProducts[0];
-      } else {
-        throw Error;
-      }
-    })
+  const { _id, username, email, cart } = req.user;
+  const user = new User(username, email, cart);
+  Product.findById(productId)
     .then((product) => {
-      if (product.cartItem.quantity == 1) {
-        return fetchedCart.removeProduct(productId);
-      }
-      fetchedCart.addProduct(product, {
-        through: { quantity: product.cartItem.quantity - 1 },
-      });
-    })
-    .then((resp) => {
-      console.log(resp);
-      res.redirect("/cart");
+      user
+        .decreaseCartItem(product, _id)
+        .then((resp) => {
+          console.log("Item Decreased From Cart");
+          res.redirect("/cart");
+        })
+        .catch(console.log);
     })
     .catch(console.log);
 };
