@@ -1,5 +1,6 @@
 const mongodb = require("mongodb");
 const MongoClient = mongodb.MongoClient;
+let db;
 const MONGO_URI =
   process.env.MONGODB_URI ||
   `mongodb+srv://dro:pword1234@cluster0.ytwpa.mongodb.net/test?retryWrites=true&w=majority`;
@@ -9,11 +10,21 @@ const connector = (cb) => {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-    .then((result) => {
+    .then((client) => {
       console.log("DB Connected");
-      cb(result);
+      db = client.db("shop");
     })
     .catch(console.log);
 };
 
-module.exports = connector;
+const getDb = () => {
+  if (db) {
+    return db;
+  }
+  throw "DB Not Found!";
+};
+
+module.exports = {
+  connector,
+  getDb,
+};

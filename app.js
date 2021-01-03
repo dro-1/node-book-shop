@@ -3,12 +3,12 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const app = express();
 
-const mongoDbConnector = require("./util/database");
+const { connector } = require("./util/database");
 
 app.set("view engine", "ejs");
 app.set("views", "views");
 
-// const adminRoutes = require("./routes/admin");
+const adminRoutes = require("./routes/admin");
 // const shopRouter = require("./routes/shop");
 const Controller404 = require("./controllers/404");
 
@@ -24,13 +24,12 @@ app.use((req, res, next) => {
   //   .catch(console.log);
 });
 
-// app.use("/admin", adminRoutes);
+app.use("/admin", adminRoutes);
 
 // app.use(shopRouter);
 
 app.use(Controller404.get404Page);
 
-mongoDbConnector((result) => {
-  console.log(result);
+connector(() => {
   app.listen(3000, "dro");
 });
