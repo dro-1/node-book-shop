@@ -2,7 +2,7 @@ const Product = require("./../models/product");
 const User = require("../models/user");
 
 exports.getIndexPage = (req, res) => {
-  Product.fetchAll()
+  Product.find()
     .then((products) => {
       res.render("shop/index", {
         pageTitle: "Shop Index Page",
@@ -14,7 +14,7 @@ exports.getIndexPage = (req, res) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
     .then((products) => {
       res.render("shop/product-list", {
         pageTitle: "Product List Page",
@@ -109,21 +109,21 @@ exports.decreaseCartItem = (req, res, next) => {
 };
 
 exports.createOrder = (req, res) => {
- const { _id, username, email, cart } = req.user;
+  const { _id, username, email, cart } = req.user;
   const user = new User(username, email, cart);
   user
     .placeOrder(_id)
     .then((resp) => {
-      console.log(resp)
-     res.redirect("/cart");
+      console.log(resp);
+      res.redirect("/cart");
     })
-   .catch(console.log);
+    .catch(console.log);
 };
 
 exports.getOrders = (req, res) => {
   User.fetchOrders(req.user._id)
     .then((orders) => {
-      console.log(orders)
+      console.log(orders);
       res.render("shop/orders", {
         pageTitle: "Orders",
         path: "/orders",
