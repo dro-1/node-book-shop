@@ -31,19 +31,17 @@ exports.getEditProduct = (req, res) => {
 
 exports.postAddProduct = (req, res) => {
   const { title, imageUrl, price, description } = req.body;
-  const product = new Product(
+  const product = new Product({
     title,
-    description,
-    Number(price),
+    price,
     imageUrl,
-    null,
-    req.user._id
-  );
+    description,
+  });
   product
     .save()
     .then((resp) => {
       console.log("Product Created");
-      res.redirect("/admin/products");
+      //res.redirect("/admin/products");
     })
     .catch(console.log);
 };

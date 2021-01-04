@@ -11,19 +11,19 @@ const connector = require("./util/database");
 const adminRoutes = require("./routes/admin");
 const shopRouter = require("./routes/shop");
 const Controller404 = require("./controllers/404");
-const User = require("./models/user");
+//const User = require("./models/user");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use((req, res, next) => {
-  User.findById("5ff1f9613bfe0d19dceec537")
-    .then((user) => {
-      req.user = user;
-      next();
-    })
-    .catch(console.log);
-});
+// app.use((req, res, next) => {
+//   User.findById("5ff1f9613bfe0d19dceec537")
+//     .then((user) => {
+//       req.user = user;
+//       next();
+//     })
+//     .catch(console.log);
+// });
 
 app.use("/admin", adminRoutes);
 

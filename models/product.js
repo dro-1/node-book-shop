@@ -21,6 +21,8 @@ const productSchema = new Schema({
   },
 });
 
+module.exports = mongoose.model("Product", productSchema);
+
 // const { getDb } = require("./../util/database");
 // const { ObjectID } = require("mongodb");
 // class Product {
@@ -66,5 +68,3 @@ const productSchema = new Schema({
 //     return db.collection("products").deleteOne({ _id: ObjectID(id) });
 //   }
 // }
-
-// module.exports = Product;
