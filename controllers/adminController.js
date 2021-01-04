@@ -48,10 +48,16 @@ exports.postAddProduct = (req, res) => {
 
 exports.postEditProduct = (req, res) => {
   const { title, imageUrl, price, description, id } = req.body;
-  const product = new Product(title, description, price, imageUrl, id);
-  product
-    .save()
+  Product.findById(id)
+    .then((product) => {
+      product.title = title;
+      product.imageUrl = imageUrl;
+      product.description = description;
+      product.price = price;
+      product.save();
+    })
     .then(() => {
+      console.log("Product Edited Successfully");
       res.redirect("/admin/products");
     })
     .catch((err) => {
@@ -69,7 +75,7 @@ exports.deleteProduct = (req, res) => {
 };
 
 exports.getAdminProducts = (req, res) => {
-  Product.fetchAll()
+  Product.find()
     .then((products) => {
       res.render("admin/products", {
         pageTitle: "Admin Products List",
