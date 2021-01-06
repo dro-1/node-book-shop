@@ -9,6 +9,15 @@ exports.getLogin = (req, res) => {
   });
 };
 
+exports.getSignup = (req, res) => {
+  console.log(req.session.isLoggedIn);
+  res.render("auth/signup", {
+    pageTitle: "Signup",
+    path: "/signup",
+    isAuthenticated: req.session.isLoggedIn,
+  });
+};
+
 exports.postLogin = (req, res) => {
   User.findById("5ff3415ae1031f26643137da")
     .then((user) => {
