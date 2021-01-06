@@ -6,6 +6,7 @@ const csrf = require("csurf");
 const flash = require("connect-flash");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const app = express();
+const dotenv = require("dotenv").config();
 const MONGO_URI =
   process.env.MONGODB_URI ||
   `mongodb+srv://dro:pword1234@cluster0.ytwpa.mongodb.net/shop`;
