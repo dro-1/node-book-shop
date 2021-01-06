@@ -57,19 +57,6 @@ app.use(authRouter);
 app.use(Controller404.get404Page);
 
 connector(() => {
-  User.findOne().then((user) => {
-    if (!user) {
-      const user = new User({
-        name: "dro",
-        email: "dro@dro.com",
-        cart: {
-          items: [],
-          totalPrice: 0.0,
-        },
-      });
-      user.save();
-    }
-  });
   app.listen(3000, "dro", (resp) => {
     console.log("Server Started");
   });
