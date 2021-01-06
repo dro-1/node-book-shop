@@ -53,6 +53,9 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getCart = (req, res) => {
+  if (!req.session.isLoggedIn) {
+    return res.redirect("/login");
+  }
   req.session.user
     .populate("cart.items.productId")
     .execPopulate()
@@ -148,6 +151,9 @@ exports.createOrder = (req, res) => {
 };
 
 exports.getOrders = (req, res) => {
+  if (!req.session.isLoggedIn) {
+    return res.redirect("/login");
+  }
   Order.find({ "user.userId": req.session.user._id })
     .then((orders) => {
       console.log(orders);
