@@ -56,11 +56,15 @@ userSchema.methods.addToCart = function (product) {
 userSchema.methods.deleteFromCart = function (product) {
   let updatedCart = this.cart;
   const productID = product.productId ? product.productId : product._id;
-  updatedCart.items = this.cart.items.filter(
-    (item) => item.productId.toString() !== productID.toString()
-  );
-  updatedCart.totalPrice =
-    updatedCart.totalPrice - product.quantity * product.price;
+  updatedCart.items = this.cart.items.filter((item) => {
+    if (item.productId.toString() === productID.toString()) {
+      product.quantity = item.quantity;
+      return false;
+    }
+    return true;
+  });
+  console.log(product);
+  updatedCart.totalPrice -= product.quantity * product.price;
   updatedCart.totalPrice = Number(updatedCart.totalPrice.toFixed(2));
   this.cart = updatedCart;
   return this.save();
@@ -73,7 +77,9 @@ userSchema.methods.decreaseFromCart = function (product) {
   let existingCartItem = this.cart.items[existingCartItemIndex];
   let updatedCart = this.cart;
   if (existingCartItem.quantity === 1) {
-    return this.deleteFromCart(existingCartItem);
+    const newProduct = product;
+    newProduct.quantity = existingCartItem.quantity;
+    return this.deleteFromCart(newProduct);
   } else {
     updatedCart.items[existingCartItemIndex].quantity =
       existingCartItem.quantity - 1;

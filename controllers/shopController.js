@@ -66,6 +66,7 @@ exports.getCart = (req, res) => {
         cart: {
           products: user.cart.items,
         },
+        price: user.cart.totalPrice,
         isAuthenticated: req.session.isLoggedIn,
       });
     });
