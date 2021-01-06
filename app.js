@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
 const session = require("express-session");
+const csrf = require("csurf");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const app = express();
 const MONGO_URI =
@@ -11,6 +12,7 @@ const store = new MongoDBStore({
   uri: MONGO_URI,
   collection: "sessions",
 });
+const csrfProtection = csrf();
 
 app.set("view engine", "ejs");
 app.set("views", "views");
@@ -35,6 +37,8 @@ app.use(
   })
 );
 
+app.use(csrfProtection);
+
 app.use((req, res, next) => {
   if (req.session.user) {
     User.findById(req.session.user._id)
@@ -46,6 +50,12 @@ app.use((req, res, next) => {
   } else {
     next();
   }
+});
+
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.csrfToken = req.csrfToken();
+  next();
 });
 
 app.use("/admin", adminRoutes);
