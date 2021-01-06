@@ -134,7 +134,7 @@ exports.createOrder = (req, res) => {
         products,
         amount: user.cart.totalPrice,
         user: {
-          name: user.name,
+          email: user.email,
           userId: user,
         },
       });
@@ -146,7 +146,7 @@ exports.createOrder = (req, res) => {
     })
     .then((resp) => {
       console.log(resp);
-      res.redirect("/cart");
+      res.redirect("/orders");
     })
     .catch(console.log);
 };
