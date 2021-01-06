@@ -5,6 +5,7 @@ exports.getAddProduct = (req, res) => {
     pageTitle: "Add Product",
     path: "/admin/add-product",
     product: {},
+    isAuthenticated: req.session.isLoggedIn,
   });
 };
 
@@ -17,11 +18,14 @@ exports.getEditProduct = (req, res) => {
           pageTitle: "Edit Product",
           path: "/admin/edit-product",
           product,
+          isAuthenticated: req.session.isLoggedIn,
         });
       } else {
-        res
-          .status(404)
-          .render("404", { pageTitle: "Page Not Found", path: "" });
+        res.status(404).render("404", {
+          pageTitle: "Page Not Found",
+          path: "",
+          isAuthenticated: req.session.isLoggedIn,
+        });
       }
     })
     .catch((err) => {
@@ -36,6 +40,7 @@ exports.postAddProduct = (req, res) => {
     price,
     imageUrl,
     description,
+    userId: req.session.user,
   });
   product
     .save()
@@ -77,11 +82,14 @@ exports.deleteProduct = (req, res) => {
 
 exports.getAdminProducts = (req, res) => {
   Product.find()
+    //.select()
+    //.populate()
     .then((products) => {
       res.render("admin/products", {
         pageTitle: "Admin Products List",
         path: "/admin/products",
         products,
+        isAuthenticated: req.session.isLoggedIn,
       });
     })
     .catch(console.log);
