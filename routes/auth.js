@@ -19,6 +19,7 @@ router.post(
   [
     body("email", "Please enter an existing user email")
       .isEmail()
+      .normalizeEmail()
       .custom((value, { req }) => {
         return User.findOne({ email: value }).then((user) => {
           if (!user) {
@@ -53,7 +54,13 @@ router.post(
       "Please enter a password that has 6 or more alphanumeric characters"
     )
       .isLength({ min: 6 })
-      .isAlphanumeric(),
+      .isAlphanumeric()
+      .custom((value, { req }) => {
+        if (value.includes(" ")) {
+          throw new Error("Password can't contain spaces");
+        }
+        return true;
+      }),
     body("confirmPassword").custom((value, { req }) => {
       if (value !== req.body.password) {
         throw new Error("Passwords must match");
