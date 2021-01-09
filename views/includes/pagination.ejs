@@ -1,0 +1,5 @@
+<section class="pagination">
+    <% pages.forEach(page=>{ %>
+    <a href="<%= isProductList ? '/products' : '' %>?page=<%= page %>" class='<%=currentPage === page ? 'active' : '' %>'><%= page %></a>
+    <% }) %>
+</section>
