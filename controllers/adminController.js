@@ -1,5 +1,7 @@
 const Product = require("./../models/product");
 
+const { validationResult } = require("express-validator");
+
 exports.getAddProduct = (req, res) => {
   if (!req.session.isLoggedIn) {
     return res.redirect("/login");
@@ -8,7 +10,15 @@ exports.getAddProduct = (req, res) => {
     pageTitle: "Add Product",
     path: "/admin/add-product",
     product: {},
+    isAdding: true,
     isAuthenticated: req.session.isLoggedIn,
+    errorMessage: "",
+    oldInput: {
+      title: "",
+      imageUrl: "",
+      price: "",
+      description: "",
+    },
   });
 };
 
@@ -25,6 +35,14 @@ exports.getEditProduct = (req, res) => {
           path: "/admin/edit-product",
           product,
           isAuthenticated: req.session.isLoggedIn,
+          isAdding: false,
+          errorMessage: "",
+          oldInput: {
+            title: "",
+            imageUrl: "",
+            price: "",
+            description: "",
+          },
         });
       } else {
         res.status(404).render("404", {
@@ -40,11 +58,45 @@ exports.getEditProduct = (req, res) => {
 };
 
 exports.postAddProduct = (req, res) => {
-  const { title, imageUrl, price, description } = req.body;
+  const { title, price, description } = req.body;
+  const image = req.file;
+  if (!image) {
+    return res.render("admin/edit-product", {
+      pageTitle: "Add Product",
+      path: "/admin/add-product",
+      product: {},
+      isAdding: true,
+      isAuthenticated: req.session.isLoggedIn,
+      errorMessage: "Invalid Image Sent",
+      oldInput: {
+        title,
+        price,
+        description,
+      },
+    });
+  }
+
+  let errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    errors = errors.array();
+    return res.render("admin/edit-product", {
+      pageTitle: "Add Product",
+      path: "/admin/add-product",
+      product: {},
+      isAdding: true,
+      isAuthenticated: req.session.isLoggedIn,
+      errorMessage: errors[0].msg,
+      oldInput: {
+        title,
+        price,
+        description,
+      },
+    });
+  }
   const product = new Product({
     title,
-    price,
-    imageUrl,
+    price: parseFloat(price),
+    imageUrl: "/" + image.path,
     description,
     userId: req.session.user,
   });
@@ -58,7 +110,25 @@ exports.postAddProduct = (req, res) => {
 };
 
 exports.postEditProduct = (req, res) => {
-  const { title, imageUrl, price, description, id } = req.body;
+  const { title, price, description, id } = req.body;
+  const image = req.file;
+  let errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    errors = errors.array();
+    return res.render("admin/edit-product", {
+      pageTitle: "Edit Product",
+      path: "/admin/edit-product",
+      product: { _id: id },
+      isAuthenticated: req.session.isLoggedIn,
+      isAdding: false,
+      errorMessage: errors[0].msg,
+      oldInput: {
+        title,
+        price,
+        description,
+      },
+    });
+  }
   Product.findOne({ userId: req.session.user._id, _id: id })
     .then((product) => {
       if (!product) {
@@ -66,9 +136,11 @@ exports.postEditProduct = (req, res) => {
         throw "Product not found";
       }
       product.title = title;
-      product.imageUrl = imageUrl;
+      if (image) {
+        product.imageUrl = "/" + image.path;
+      }
       product.description = description;
-      product.price = price;
+      product.price = parseFloat(price);
       return product.save();
     })
     .then(() => {

@@ -24,4 +24,6 @@ router.post("/cart-decrease-item", isAuth, shopController.decreaseCartItem);
 
 router.get("/products/:productId", shopController.getProduct);
 
+router.get("/order/:orderId", isAuth, shopController.getInvoice);
+
 module.exports = router;

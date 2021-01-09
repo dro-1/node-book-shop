@@ -1,6 +1,10 @@
 const Product = require("./../models/product");
 const User = require("../models/user");
 const Order = require("../models/order");
+const path = require("path");
+const fs = require("fs");
+const fsPromises = fs.promises;
+const PDFDocument = require("pdfkit");
 
 exports.getIndexPage = (req, res) => {
   Product.find()
@@ -157,7 +161,6 @@ exports.getOrders = (req, res) => {
   }
   Order.find({ "user.userId": req.session.user._id })
     .then((orders) => {
-      console.log(orders);
       res.render("shop/orders", {
         pageTitle: "Orders",
         path: "/orders",
@@ -166,4 +169,54 @@ exports.getOrders = (req, res) => {
       });
     })
     .catch(console.log);
+};
+
+exports.getInvoice = (req, res) => {
+  const orderId = req.params.orderId;
+  Order.findOne({ _id: orderId, "user.userId": req.session.user._id }).then(
+    (order) => {
+      if (!order) {
+        return res.redirect("/orders");
+      }
+      const invoiceName = "invoice-" + orderId + ".pdf";
+      const invoicePath = path.join(
+        __dirname,
+        "..",
+        "data",
+        "invoices",
+        invoiceName
+      );
+      const pdfDoc = new PDFDocument();
+      pdfDoc.pipe(fs.createWriteStream(invoicePath));
+      res.set({
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `inline;filename=${invoiceName}`,
+      });
+      pdfDoc.pipe(res);
+      pdfDoc.fontSize(26).text("Invoice");
+      pdfDoc.text("------------------------------");
+      order.products.forEach((p) => {
+        pdfDoc
+          .fontSize(18)
+          .text(
+            p.product.title + "       $" + p.product.price + " x " + p.quantity
+          );
+      });
+      pdfDoc.fontSize(26).text("------------------------------");
+      pdfDoc.fontSize(20).text("Total Price: $" + order.amount);
+      pdfDoc.end();
+      // fsPromises.readFile(invoicePath)
+      //   .then((resp) => {
+      //     res.set({
+      //       "Content-Type": "application/pdf",
+      //       //"Content-Disposition": `attachment;filename=${invoiceName}`,
+      //     });
+      //     res.send(resp);
+      //   })
+      //   .catch(console.log);
+      // const file = fs.createReadStream(invoicePath);
+      // res.set("Content-Type", "application/pdf");
+      // file.pipe(res);
+    }
+  );
 };

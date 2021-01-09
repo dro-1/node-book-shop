@@ -68,12 +68,6 @@ router.post(
       return true;
     }),
   ],
-  // .custom((value, { req }) => {
-  //   if (value === "dro@dro.com") {
-  //     throw new Error("This email is forbidden");
-  //   }
-  //   return true;
-  // }),
   authController.postSignup
 );
 
